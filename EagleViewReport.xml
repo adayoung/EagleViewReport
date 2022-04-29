@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE MudletPackage>
+<MudletPackage version="1.001">
+	<TriggerPackage>
+		<TriggerGroup isActive="yes" isFolder="yes" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+			<name>EagleViewReport</name>
+			<script></script>
+			<triggerType>0</triggerType>
+			<conditonLineDelta>0</conditonLineDelta>
+			<mStayOpen>0</mStayOpen>
+			<mCommand></mCommand>
+			<packageName></packageName>
+			<mFgColor>#ff0000</mFgColor>
+			<mBgColor>#ffff00</mBgColor>
+			<mSoundFile></mSoundFile>
+			<colorTriggerFgColor>#000000</colorTriggerFgColor>
+			<colorTriggerBgColor>#000000</colorTriggerBgColor>
+			<regexCodeList />
+			<regexCodePropertyList />
+			<Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+				<name>EagleAliasGag</name>
+				<script>deleteFull()</script>
+				<triggerType>0</triggerType>
+				<conditonLineDelta>0</conditonLineDelta>
+				<mStayOpen>0</mStayOpen>
+				<mCommand></mCommand>
+				<packageName></packageName>
+				<mFgColor>#ff0000</mFgColor>
+				<mBgColor>#ffff00</mBgColor>
+				<mSoundFile></mSoundFile>
+				<colorTriggerFgColor>#000000</colorTriggerFgColor>
+				<colorTriggerBgColor>#000000</colorTriggerBgColor>
+				<regexCodeList>
+					<string>Alias "EagleView" will now execute: </string>
+					<string>[System]: Added EAGLEVIEW to your eqbal queue.</string>
+					<string>[System]: Running queued eqbal command: EAGLEVIEW</string>
+					<string>You have cleared alias "eagleview".</string>
+				</regexCodeList>
+				<regexCodePropertyList>
+					<integer>2</integer>
+					<integer>3</integer>
+					<integer>3</integer>
+					<integer>3</integer>
+				</regexCodePropertyList>
+			</Trigger>
+			<Trigger isActive="no" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+				<name>EagleViewPreamble</name>
+				<script>enableTrigger("EagleViewPrompt")
+enableTrigger("EagleViewLine")
+eagleView = {}
+deleteLine()</script>
+				<triggerType>0</triggerType>
+				<conditonLineDelta>0</conditonLineDelta>
+				<mStayOpen>0</mStayOpen>
+				<mCommand></mCommand>
+				<packageName></packageName>
+				<mFgColor>#ff0000</mFgColor>
+				<mBgColor>#ffff00</mBgColor>
+				<mSoundFile></mSoundFile>
+				<colorTriggerFgColor>#000000</colorTriggerFgColor>
+				<colorTriggerBgColor>#000000</colorTriggerBgColor>
+				<regexCodeList>
+					<string>-- view preamble --</string>
+				</regexCodeList>
+				<regexCodePropertyList>
+					<integer>3</integer>
+				</regexCodePropertyList>
+			</Trigger>
+			<Trigger isActive="no" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+				<name>EagleViewLine</name>
+				<script>local who = matches[2]
+local where = matches[3]
+
+where = string.gsub(where, 'In the trees above ', '')
+where = string.gsub(where, 'Flying above ', '')
+
+eagleView[where] = eagleView[where] or {}
+table.insert(eagleView[where], who)
+
+table.sort(eagleView[where])</script>
+				<triggerType>0</triggerType>
+				<conditonLineDelta>0</conditonLineDelta>
+				<mStayOpen>0</mStayOpen>
+				<mCommand></mCommand>
+				<packageName></packageName>
+				<mFgColor>#ff0000</mFgColor>
+				<mBgColor>#ffff00</mBgColor>
+				<mSoundFile></mSoundFile>
+				<colorTriggerFgColor>#000000</colorTriggerFgColor>
+				<colorTriggerBgColor>#000000</colorTriggerBgColor>
+				<regexCodeList>
+					<string>^You see (\S+) at (.+?)\.$</string>
+				</regexCodeList>
+				<regexCodePropertyList>
+					<integer>1</integer>
+				</regexCodePropertyList>
+			</Trigger>
+			<Trigger isActive="no" isFolder="no" isTempTrigger="no" isMultiline="no" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+				<name>EagleViewPrompt</name>
+				<script>local report_only_above = 1  -- change this to report crowds ABOVE this limit
+
+disableTrigger("EagleViewPreamble")
+disableTrigger("EagleViewPrompt")
+--disableTrigger("EagleAliasGag")
+disableTrigger("EagleViewLine")
+
+local eagleViewLengths = {}
+for location, people in pairs(eagleView) do
+  local roomIDs = mmp.searchRoomExact(location)
+  local roomID = 0
+  for k, v in pairs(roomIDs) do
+    roomID = k
+    break
+  end
+  area = 'Unknown'
+  if roomID ~= 0 then
+    area = mmp.cleanAreaName(mmp.getAreaName(roomID))
+  end
+
+  table.insert(eagleViewLengths, {location, area})
+end
+
+local sortSecond = function(a, b)
+  return a[2] &lt; b[2]
+end
+
+table.sort(eagleViewLengths, sortSecond)
+
+local sendTable = {}
+for i = 1, #eagleViewLengths, 1 do
+  local location = eagleViewLengths[i][1]
+  local people = eagleView[location]
+  local line = "PT " .. table.concat(people, ", ") .. " [" .. #people .. "] at " .. location .. " (" ..eagleViewLengths[i][2].. ")"
+  if eagleViewLengths[i][2] == 'Eleusis' then
+    cecho("\n&lt;green&gt;" ..line)
+  else
+    cecho("\n&lt;orange&gt;" ..line)
+  end
+  if #people &gt; report_only_above then
+    table.insert(sendTable, line)
+  end
+end
+
+send("CLEARALIAS EagleView")
+
+
+local party_available = false
+for _,v in ipairs(gmcp.Comm.Channel.List) do
+	if v.name == 'party' then
+		party_available = true
+	end
+end
+
+if party_available then
+  if svo.sendc then
+    svo.sendc(unpack(sendTable))
+  else
+    local sendChunk = {}
+    for i = 1, #sendTable, 1 do
+      table.insert(sendChunk, sendTable[i])
+      if #sendTable == 20 then
+        send("SETALIAS EagleView " ..table.concat(sendChunk, "/"))
+        send("EagleView")
+        sendChunk = {}
+      end
+    end
+    if #sendChunk &gt; 0 then
+      send("SETALIAS EagleView " ..table.concat(sendChunk, "/"))
+      send("EagleView")
+    end
+    send("CLEARALIAS EagleView")
+  end
+end</script>
+				<triggerType>0</triggerType>
+				<conditonLineDelta>0</conditonLineDelta>
+				<mStayOpen>0</mStayOpen>
+				<mCommand></mCommand>
+				<packageName></packageName>
+				<mFgColor>#ff0000</mFgColor>
+				<mBgColor>#ffff00</mBgColor>
+				<mSoundFile></mSoundFile>
+				<colorTriggerFgColor>#000000</colorTriggerFgColor>
+				<colorTriggerBgColor>#000000</colorTriggerBgColor>
+				<regexCodeList>
+					<string></string>
+				</regexCodeList>
+				<regexCodePropertyList>
+					<integer>7</integer>
+				</regexCodePropertyList>
+			</Trigger>
+		</TriggerGroup>
+	</TriggerPackage>
+	<TimerPackage />
+	<AliasPackage>
+		<Alias isActive="yes" isFolder="no">
+			<name>EagleView</name>
+			<script>local send_table = {
+  "ECHO -- view preamble --",
+  "VIEW",
+}
+
+enableTrigger("EagleViewPreamble")
+enableTrigger("EagleAliasGag")
+
+send("SETALIAS EagleView " ..table.concat(send_table, "/"))
+send("QUEUE ADD EQBAL EagleView")</script>
+			<command></command>
+			<packageName></packageName>
+			<regex>^view$</regex>
+		</Alias>
+	</AliasPackage>
+	<ActionPackage />
+	<ScriptPackage />
+	<KeyPackage />
+	<VariablePackage>
+		<HiddenVariables />
+	</VariablePackage>
+</MudletPackage>
