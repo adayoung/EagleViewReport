@@ -19,3 +19,10 @@ the 'EagleViewPrompt' trigger.
 Please feel free to extend and adapt it to your use case!
 
 Here's some example output: https://ada-young.com/pastebin/xQLjOiFU
+
+### How to import
+
+1. You'll want to hit Alt-O to open the package manager
+2. Click on the little 'Install' button
+3. Locate the [xml file](https://github.com/adayoung/EagleViewReport/blob/master/EagleViewReport.xml) you've downloaded from here
+4. Click Open! That should be it :grin:
